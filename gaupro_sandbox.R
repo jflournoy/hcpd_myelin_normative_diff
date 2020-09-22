@@ -89,8 +89,13 @@ ggplot(cbind(as.data.frame(t(pe2_summary)), dat1), aes(x = age, y = Z)) +
 #?brms::prepare_predictions
 library(future)
 #CHANGE THE NUMBER OF WORKERS TO MATCH YOUR MACHINE!
-future::plan(future::multiprocess, workers = 15)
-kfold1 <- brms::kfold(fit1, K = 10, save_fits = TRUE, chains = 1, nug = 1e-07)
+if(!file.exists('kfold1.rds')){
+  future::plan(future::multiprocess, workers = 15)
+  kfold1 <- brms::kfold(fit1, K = 10, save_fits = TRUE, chains = 1, nug = 1e-07)
+  saveRDS(kfold1, 'kfold1.rds')
+} else {
+  kfold1 <- readRDS('kfold1.rds')
+}
 
 oos_norm_Z <- function(pe_sample, sigma_nj) {
   qstats <- quantile(pe_sample, probs = c(.025, .5, .975))
